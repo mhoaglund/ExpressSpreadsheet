@@ -18,6 +18,7 @@ class OutputManager(Process):
         self.pump_control_pin = _settings.pump
         self.pumpstate = "Off"
         GPIO.setup(self.servo_control_pin, GPIO.OUT)
+        GPIO.setup(self.pump_control_pin, GPIO.OUT)
         self.p = GPIO.PWM(self.servo_control_pin, 50)
         self.p.start(0)
         self.i2c = busio.I2C(board.SCL, board.SDA)
@@ -38,13 +39,21 @@ class OutputManager(Process):
                 if latest.reading is None and latest.state is not None:
                     #TODO turn pump on or off bsaed on latest.state flag
                     self.pumpstate = latest.state
-                    self.updateScreen("Offline", latest.state)
+                    self.updateScreen("---", latest.state)
+                    self.updatePump(latest.state)
                     continue
                 sleep(4)
 
     def updateServo(self, reading):
         #TODO compute an angle from the reading based on range provided
         self.SetAngle(reading/2)
+
+    def updatePump(self, state):
+        if state == "On":
+            GPIO.output(self.pump_control_pin, GPIO.HIGH)
+        if state == "Off":
+            GPIO.output(self.pump_control_pin, GPIO.LOW)
+        self.logging_queue.put("Pump State Changed")
 
     def updateScreen(self, message, pumpstate):
         text = message

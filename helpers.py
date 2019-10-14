@@ -13,6 +13,14 @@ class InputSettings(object):
         self.trigger_pin = _pin
         self.trigger_queue = _queue
 
+class QueuePayload(object):
+    """
+    """
+    def __init__(self, row, stateflag):
+        self.reading = row.reading
+        self.timestamp = row.timestamp
+        self.state = stateflag
+
 class DataSettings(object):
     """
     """

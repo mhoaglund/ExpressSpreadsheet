@@ -8,7 +8,7 @@ import logging
 from multiprocessing import Queue
 
 from datapager import DataPager
-from helpers import IOManager, InputSettings, DataSettings
+from helpers import IOManager, InputSettings, DataSettings, QueuePayload
 
 from logging.handlers import RotatingFileHandler
 formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(message)s')
@@ -39,6 +39,8 @@ DATA_SETTINGS = DataSettings(
 DATA_PAGER = None
 
 schedule.every(30).seconds.do(sendLatestData)
+schedule.every().day.at("08:00").do(awake)
+schedule.every().day.at("16:00").do(asleep) 
 
 def checkHWstate():
     DATA_PAGER = DataPager(DATA_SETTINGS)
@@ -46,8 +48,14 @@ def checkHWstate():
     
 def sendLatestData():
     # TODO get next data frame from datapager
-    TRIGGERQUEUE.put(DATA_PAGER.next())
+    TRIGGERQUEUE.put(QueuePayload(DATA_PAGER.next(), None))
     return True
+
+def awake():
+    TRIGGERQUEUE.put(QueuePayload(None, "On"))
+
+def asleep():
+    TRIGGERQUEUE.put(QueuePayload(None, "Off"))
 
 def spinupinput():
     """Activate GPIO trigger"""
