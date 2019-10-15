@@ -13,10 +13,11 @@ image = Image.new('1', (oled.width, oled.height))
 draw = ImageDraw.Draw(image)
 
 def updateScreen(message, pumpstate):
-    text = message + "   Pump is "
+    text = message
+    textlinetwo = "Pump is " + pumpstate
     (font_width, font_height) = font.getsize(text)
-    draw.text((oled.width//2 - font_width//2, oled.height//2 - font_height//2),
-    text, font=font, fill=255)
+    draw.text((oled.width//2 - font_width//2, oled.height//2 - font_height),text, font=font, fill=255)
+    draw.text((oled.width//2 - font_width//2, oled.height//2 + font_height//4),textlinetwo, font=font, fill=255)
     oled.image(image)
     oled.show()
 
