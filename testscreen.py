@@ -8,7 +8,7 @@ i2c = busio.I2C(board.SCL, board.SDA)
 oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
 oled.fill(255)
 oled.show()
-font = ImageFont.truetype("OpenSans-Regular.ttf", 14, encoding = "unic")
+font = ImageFont.truetype("PTM55FT.ttf", 14, encoding = "unic")
 image = Image.new('1', (oled.width, oled.height))
 draw = ImageDraw.Draw(image)
 
