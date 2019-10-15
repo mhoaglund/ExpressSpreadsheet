@@ -25,9 +25,9 @@ class OutputManager(Process):
         self.oled = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
         self.oled.fill(0)
         self.oled.show()
-        self.font = ImageFont.load_default()
-        image = Image.new('1', (self.oled.width, self.oled.height))
-        self.draw = ImageDraw.Draw(image)
+        self.font = ImageFont.truetype("PTM55FT.ttf", 12, encoding = "unic")
+        self.image = Image.new('1', (self.oled.width, self.oled.height))
+        self.draw = ImageDraw.Draw(self.image)
     
     def run(self):
         while self.cont:
@@ -57,9 +57,12 @@ class OutputManager(Process):
 
     def updateScreen(self, message, pumpstate):
         text = message
+        textlinetwo = "Pump is " + pumpstate
         (font_width, font_height) = self.font.getsize(text)
-        self.draw.text((self.oled.width//2 - font_width//2, self.oled.height//2 - font_height//2),
-        text, font=self.font, fill=255)
+        self.draw.text((self.oled.width//2 - font_width//2, self.oled.height//2 - font_height),text, font=self.font, fill=255)
+        self.draw.text((self.oled.width//2 - font_width//2, self.oled.height//2 + font_height//4),textlinetwo, font=self.font, fill=255)
+        self.oled.image(self.image)
+        self.oled.show()
 
     def SetAngle(self, angle):
         #TODO verify all the math here

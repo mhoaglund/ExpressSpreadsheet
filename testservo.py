@@ -1,9 +1,9 @@
 import RPi.GPIO as GPIO
 from time import sleep
 
-GPIO.setmode(GPIO.BOARD)
-servo_control_pin = 4
-pump_control_pin = 24
+GPIO.setmode(GPIO.BCM)
+servo_control_pin = 7
+pump_control_pin = 18
 pumpstate = "Off"
 GPIO.setup(servo_control_pin, GPIO.OUT)
 GPIO.setup(pump_control_pin, GPIO.OUT)
