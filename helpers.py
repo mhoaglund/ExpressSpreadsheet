@@ -1,5 +1,4 @@
 from multiprocessing import Process
-import RPi.GPIO as GPIO
 
 class InputSettings(object):
     """
@@ -17,8 +16,8 @@ class QueuePayload(object):
     """
     """
     def __init__(self, row, stateflag):
-        self.reading = row.reading
-        self.timestamp = row.timestamp
+        self.reading = row[1]
+        self.timestamp = row[0]
         self.state = stateflag
 
 class DataSettings(object):
@@ -42,8 +41,9 @@ class OutputSettings(object):
 class IOManager(Process):
     """Process to handle GPIO input"""
     def __init__(self, _settings):
+        import RPi.GPIO as GPIO
         super(IOManager, self).__init__()
-        print 'Starting Input Manager'
+        print('Starting Input Manager')
         GPIO.setmode(GPIO.BCM)
         self.cont = True
         self.trigger_pin = _settings.trigger_pin
@@ -63,7 +63,7 @@ class IOManager(Process):
     
     def stop(self):
         """Stop method called from parent"""
-        print 'terminating input manager'
+        print('terminating')
         self.cont = False
         GPIO.cleanup()
 

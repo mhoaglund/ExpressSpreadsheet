@@ -33,22 +33,21 @@ INPUT_SETTINGS = InputSettings(
 )
 
 DATA_SETTINGS = DataSettings(
-    "data.csv"
+    "sampled.csv"
 )
 
-DATA_PAGER = None
+DATA_PAGER = DataPager(DATA_SETTINGS)
 
-schedule.every(30).seconds.do(sendLatestData)
-schedule.every().day.at("08:00").do(awake)
-schedule.every().day.at("16:00").do(asleep) 
-
-def checkHWstate():
-    DATA_PAGER = DataPager(DATA_SETTINGS)
+def getParamsFromPager():
+    params = DATA_PAGER.first()
+    #TODO send the max and min from the params over to outputmgr to calibrate
     return True
     
 def sendLatestData():
     # TODO get next data frame from datapager
+    latest = QueuePayload(DATA_PAGER.next(), None)
     TRIGGERQUEUE.put(QueuePayload(DATA_PAGER.next(), None))
+    print(latest.reading)
     return True
 
 def awake():
@@ -57,13 +56,6 @@ def awake():
 def asleep():
     TRIGGERQUEUE.put(QueuePayload(None, "Off"))
 
-def spinupinput():
-    """Activate GPIO trigger"""
-    if __name__ == '__main__':
-        _inputmgr = IOManager(INPUT_SETTINGS)
-        PROCESSES.append(_inputmgr)
-        _inputmgr.start()
-
 def stopworkerthreads():
     """Stop any currently running threads"""
     global PROCESSES
@@ -71,17 +63,19 @@ def stopworkerthreads():
         proc.stop()
         proc.join()
 
-if checkHWstate():
-    spinupinput()
+schedule.every(12).seconds.do(sendLatestData)
+schedule.every().day.at("08:00").do(awake)
+schedule.every().day.at("16:00").do(asleep) 
+
+if getParamsFromPager():
+    print("starting...")
 try:
     while True:
+        schedule.run_pending()
         while not LOGGINGQUEUE.empty():
             logmsg = LOGGINGQUEUE.get()
-            if logmsg == "reboot":
-                logger.info('Caught an omxplayer failure. Rebooting...')
-                os.system("sudo reboot now -h")
-            else:
-                logger.info('Media Manager Report: ' + logmsg)
+            if logmsg is not None:
+                print(logmsg)
         x = 1
 except (KeyboardInterrupt, SystemExit):
     stopworkerthreads()
