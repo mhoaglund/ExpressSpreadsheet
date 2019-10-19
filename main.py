@@ -8,7 +8,8 @@ import logging
 from multiprocessing import Queue
 
 from datapager import DataPager
-from helpers import IOManager, DataSettings, QueuePayload, OutputSettings
+from helpers import DataSettings, QueuePayload, OutputSettings
+from output import HardwareController
 
 from logging.handlers import RotatingFileHandler
 formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(message)s')
@@ -30,7 +31,8 @@ OUTPUT_SETTINGS = OutputSettings(
     4,
     23,
     27,
-    TRIGGERQUEUE
+    TRIGGERQUEUE,
+    LOGGINGQUEUE
 )
 
 DATA_SETTINGS = DataSettings(
@@ -51,9 +53,10 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     # Convert the 0-1 range into a value in the right range.
     return int(rightMin + (valueScaled * rightSpan))
 
-def getParamsFromPager():
+def setup():
     PARAMS[0] = float(DATA_PAGER.last()[0])
     PARAMS[1] = float(DATA_PAGER.last()[1])
+    HWMGR = HardwareController(OUTPUT_SETTINGS)
     #TODO send the max and min from the params over to outputmgr to calibrate
     return True
     
@@ -90,7 +93,7 @@ schedule.every(12).seconds.do(sendLatestData)
 schedule.every().day.at("08:00").do(awake)
 schedule.every().day.at("16:00").do(asleep) 
 
-if getParamsFromPager():
+if setup():
     print("starting...")
 try:
     sendLatestData()

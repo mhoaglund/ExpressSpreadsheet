@@ -7,9 +7,9 @@ import digitalio
 from PIL import Image, ImageDraw, ImageFont
 from time import sleep
 
-class OutputManager(Process):
+class HardwareController(Process):
     def __init__(self, _settings):
-        super(OutputManager, self).__init__()
+        super(HardwareController, self).__init__()
         GPIO.setmode(GPIO.BCM)
         self.cont = True
         self.trigger_queue = _settings.trigger_queue
