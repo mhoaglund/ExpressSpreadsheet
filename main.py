@@ -1,5 +1,3 @@
-#TODO: omxplayer management
-
 import os
 import sys
 import schedule
@@ -42,8 +40,6 @@ DATA_SETTINGS = DataSettings(
 DATA_PAGER = DataPager(DATA_SETTINGS)
 
 PARAMS = [0,0]
-HWMGR = None
-
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
 # Figure out how 'wide' each range is
@@ -58,9 +54,15 @@ def setup():
     #We get the last row because the datapager flips the CSV over.
     PARAMS[0] = float(DATA_PAGER.last()[0])
     PARAMS[1] = float(DATA_PAGER.last()[1])
-    HWMGR = HardwareController(OUTPUT_SETTINGS)
-    #TODO send the max and min from the params over to outputmgr to calibrate
+    spinupoutputprocess()
     return True
+
+def spinupoutputprocess():
+    """Activate serial port trigger"""
+    if __name__ == '__main__':
+        _hwmgr = HardwareController(OUTPUT_SETTINGS)
+        PROCESSES.append(_hwmgr)
+        _hwmgr.start()
     
 def sendLatestData():
     # TODO get next data frame from datapager
