@@ -54,6 +54,7 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     return int(rightMin + (valueScaled * rightSpan))
 
 def setup():
+    #We get the last row because the datapager flips the CSV over.
     PARAMS[0] = float(DATA_PAGER.last()[0])
     PARAMS[1] = float(DATA_PAGER.last()[1])
     HWMGR = HardwareController(OUTPUT_SETTINGS)
