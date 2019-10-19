@@ -48,9 +48,10 @@ class HardwareController(Process):
                 self.logging_queue.put("Got data packet in output queue")
                 if latest.reading is not None:
                     if latest.reading != self.prev_reading:
+                        self.logging_queue.put("Updating pump servo...")
                         self.updateServo(latest.reading)
                     self.prev_reading = latest.reading
-                    self.updateScreen(latest.date, self.pumpstate)
+                    self.updateScreen(latest.timestamp, self.pumpstate)
                 if latest.reading is None and latest.state is not None:
                     #TODO turn pump on or off bsaed on latest.state flag
                     self.pumpstate = latest.state
