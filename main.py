@@ -42,6 +42,7 @@ DATA_SETTINGS = DataSettings(
 DATA_PAGER = DataPager(DATA_SETTINGS)
 
 PARAMS = [0,0]
+HWMGR = None
 
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):

@@ -32,6 +32,7 @@ class HardwareController(Process):
         self.draw = ImageDraw.Draw(self.image)
         self.prev_reading = 0
         self.updatePump(self.pumpstate)
+        self.logging_queue.put("Output process started...")
     
     def run(self):
         while self.cont:
@@ -44,6 +45,7 @@ class HardwareController(Process):
             sleep(1)
             while not self.trigger_queue.empty():
                 latest = self.trigger_queue.get()
+                self.logging_queue.put("Got data packet in output queue")
                 if latest.reading is not None:
                     if latest.reading != self.prev_reading:
                         self.updateServo(latest.reading)
