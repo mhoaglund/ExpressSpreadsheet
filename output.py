@@ -16,7 +16,7 @@ class OutputManager(Process):
         self.logging_queue = _settings.logging_queue
         self.servo_control_pin = _settings.pin
         self.pump_control_pin = _settings.pump
-        self.pumpstate = "Off"
+        self.pumpstate = "On"
         GPIO.setup(self.servo_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_control_pin, GPIO.OUT)
         self.p = GPIO.PWM(self.servo_control_pin, 50)
@@ -28,13 +28,17 @@ class OutputManager(Process):
         self.font = ImageFont.truetype("PTM55FT.ttf", 12, encoding = "unic")
         self.image = Image.new('1', (self.oled.width, self.oled.height))
         self.draw = ImageDraw.Draw(self.image)
+        self.prev_reading = 0
+        self.updatePump(self.pumpstate)
     
     def run(self):
         while self.cont:
             while not self.trigger_queue.empty():
                 latest = self.trigger_queue.get()
                 if latest.reading is not None:
-                    self.updateServo(latest.reading)
+                    if latest.reading != self.prev_reading:
+                        self.updateServo(latest.reading)
+                    self.prev_reading = latest.reading
                     self.updateScreen(latest.date, self.pumpstate)
                 if latest.reading is None and latest.state is not None:
                     #TODO turn pump on or off bsaed on latest.state flag
@@ -45,8 +49,7 @@ class OutputManager(Process):
                 sleep(4)
 
     def updateServo(self, reading):
-        #TODO compute an angle from the reading based on range provided
-        self.SetAngle(reading/2)
+        self.SetAngle(reading)
 
     def updatePump(self, state):
         if state == "On":
@@ -65,7 +68,6 @@ class OutputManager(Process):
         self.oled.show()
 
     def SetAngle(self, angle):
-        #TODO verify all the math here
         duty = angle / 18 + 2
         GPIO.output(self.servo_control_pin, True)
         self.p.ChangeDutyCycle(duty)

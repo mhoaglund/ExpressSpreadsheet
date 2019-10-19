@@ -15,9 +15,9 @@ class InputSettings(object):
 class QueuePayload(object):
     """
     """
-    def __init__(self, row, stateflag):
-        self.reading = row[1]
-        self.timestamp = row[0]
+    def __init__(self, _reading, _timestamp, stateflag):
+        self.reading = _reading
+        self.timestamp = _timestamp
         self.state = stateflag
 
 class DataSettings(object):

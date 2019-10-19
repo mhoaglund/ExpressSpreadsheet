@@ -12,15 +12,21 @@ class DataPager(object):
             for row in readCSV:
                 self.rows.insert(0, row)
         csvfile.close()
+        self.stepcount = len(self.rows) -2
         # TODO verify csv structure
 
     def next(self):
-        self.current += 1
-        self.previous += 1
+        if self.current < self.stepcount:
+            self.current += 1
+        else:
+            self.current = 0
         return self.rows[self.current]
 
     def first(self):
         return self.rows[0]
+
+    def last(self):
+        return self.rows[-1]
 
     def bydate(self):
         return "bydate"

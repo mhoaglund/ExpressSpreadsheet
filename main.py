@@ -38,23 +38,45 @@ DATA_SETTINGS = DataSettings(
 
 DATA_PAGER = DataPager(DATA_SETTINGS)
 
+PARAMS = [0,0]
+
+
+def translate(value, leftMin, leftMax, rightMin, rightMax):
+# Figure out how 'wide' each range is
+    leftSpan = leftMax - leftMin
+    rightSpan = rightMax - rightMin
+    # Convert the left range into a 0-1 range (float)
+    valueScaled = float(value - leftMin) / float(leftSpan)
+    # Convert the 0-1 range into a value in the right range.
+    return int(rightMin + (valueScaled * rightSpan))
+
 def getParamsFromPager():
-    params = DATA_PAGER.first()
+    PARAMS[0] = float(DATA_PAGER.last()[0])
+    PARAMS[1] = float(DATA_PAGER.last()[1])
     #TODO send the max and min from the params over to outputmgr to calibrate
     return True
     
 def sendLatestData():
     # TODO get next data frame from datapager
-    latest = QueuePayload(DATA_PAGER.next(), None)
-    TRIGGERQUEUE.put(QueuePayload(DATA_PAGER.next(), None))
+    latest = QueuePayload(
+        translate(
+            float(DATA_PAGER.next()[1]), 
+            PARAMS[0], 
+            PARAMS[1], 
+            0, 
+            180
+            ), 
+        DATA_PAGER.next()[0],
+         None)
+    TRIGGERQUEUE.put(latest)
     print(latest.reading)
     return True
 
 def awake():
-    TRIGGERQUEUE.put(QueuePayload(None, "On"))
+    TRIGGERQUEUE.put(QueuePayload(None, None, "On"))
 
 def asleep():
-    TRIGGERQUEUE.put(QueuePayload(None, "Off"))
+    TRIGGERQUEUE.put(QueuePayload(None, None, "Off"))
 
 def stopworkerthreads():
     """Stop any currently running threads"""
@@ -70,6 +92,7 @@ schedule.every().day.at("16:00").do(asleep)
 if getParamsFromPager():
     print("starting...")
 try:
+    sendLatestData()
     while True:
         schedule.run_pending()
         while not LOGGINGQUEUE.empty():
