@@ -8,7 +8,7 @@ import logging
 from multiprocessing import Queue
 
 from datapager import DataPager
-from helpers import IOManager, InputSettings, DataSettings, QueuePayload
+from helpers import IOManager, DataSettings, QueuePayload, OutputSettings
 
 from logging.handlers import RotatingFileHandler
 formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(message)s')
@@ -26,9 +26,10 @@ PROCESSES = []
 TRIGGERQUEUE = Queue()
 LOGGINGQUEUE = Queue()
 
-INPUT_SETTINGS = InputSettings(
-    25,
-    22,
+OUTPUT_SETTINGS = OutputSettings(
+    4,
+    23,
+    27,
     TRIGGERQUEUE
 )
 

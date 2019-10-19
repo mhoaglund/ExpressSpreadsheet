@@ -14,11 +14,13 @@ class OutputManager(Process):
         self.cont = True
         self.trigger_queue = _settings.trigger_queue
         self.logging_queue = _settings.logging_queue
-        self.servo_control_pin = _settings.pin
-        self.pump_control_pin = _settings.pump
+        self.servo_control_pin = _settings.servo_pin
+        self.pump_override_pin = _settings.override
+        self.pump_control_pin = _settings.pump_pin
         self.pumpstate = "On"
         GPIO.setup(self.servo_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_control_pin, GPIO.OUT)
+        GPIO.setup(self.pump_override_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         self.p = GPIO.PWM(self.servo_control_pin, 50)
         self.p.start(0)
         self.i2c = busio.I2C(board.SCL, board.SDA)
@@ -33,6 +35,13 @@ class OutputManager(Process):
     
     def run(self):
         while self.cont:
+            input_state = GPIO.input(self.pump_override_pin)
+            if input_state == False:
+                if self.pumpstate == "On":
+                    self.updatePump("Off")
+                else:
+                    self.updatePump("On")
+            sleep(1)
             while not self.trigger_queue.empty():
                 latest = self.trigger_queue.get()
                 if latest.reading is not None:
@@ -46,7 +55,6 @@ class OutputManager(Process):
                     self.updateScreen("---", latest.state)
                     self.updatePump(latest.state)
                     continue
-                sleep(4)
 
     def updateServo(self, reading):
         self.SetAngle(reading)
@@ -56,7 +64,8 @@ class OutputManager(Process):
             GPIO.output(self.pump_control_pin, GPIO.HIGH)
         if state == "Off":
             GPIO.output(self.pump_control_pin, GPIO.LOW)
-        self.logging_queue.put("Pump State Changed")
+        self.logging_queue.put("Pump State Changed to " + state)
+        self.pumpstate = state
 
     def updateScreen(self, message, pumpstate):
         text = message
