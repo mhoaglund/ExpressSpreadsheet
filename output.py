@@ -21,8 +21,9 @@ class HardwareController(Process):
         GPIO.setup(self.servo_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_override_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        self.p = GPIO.PWM(self.servo_control_pin, 50)
-        self.p.start(0)
+        # self.p = GPIO.PWM(self.servo_control_pin, 50)
+        # self.p.start(0)
+
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self.oled = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
         self.oled.fill(0)
@@ -35,6 +36,8 @@ class HardwareController(Process):
         self.logging_queue.put("Output process started...")
     
     def run(self):
+        self.p = GPIO.PWM(self.servo_control_pin, 50)
+        self.p.start(0)
         while self.cont:
             input_state = GPIO.input(self.pump_override_pin)
             if input_state == False:
