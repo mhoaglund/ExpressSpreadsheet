@@ -87,12 +87,13 @@ class HardwareController(Process):
         self.oled.show()
 
     def SetAngle(self, angle):
-        duty = int(angle) / 18 + 2
+        duty = (angle / 18) + 2
+        self.logging_queue.put(str(duty))
         GPIO.output(self.servo_control_pin, True)
         self.p.ChangeDutyCycle(duty)
-        sleep(1)
-        GPIO.output(self.servo_control_pin, False)
-        self.p.ChangeDutyCycle(0)
+        #sleep(1)
+        #GPIO.output(self.servo_control_pin, False)
+        #self.p.ChangeDutyCycle(0)
 
     def stop(self):
         """Stop method called from parent"""
