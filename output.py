@@ -14,9 +14,9 @@ class HardwareController(Process):
         self.cont = True
         self.trigger_queue = _settings.trigger_queue
         self.logging_queue = _settings.logging_queue
-        self.servo_control_pin = _settings.servo_pin
-        self.pump_override_pin = _settings.override
-        self.pump_control_pin = _settings.pump_pin
+        self.servo_control_pin = 4
+        self.pump_override_pin = 27
+        self.pump_control_pin = 23
         self.pumpstate = "On"
         GPIO.setup(self.servo_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_control_pin, GPIO.OUT)
