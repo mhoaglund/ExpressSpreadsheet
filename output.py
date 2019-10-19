@@ -71,6 +71,10 @@ class HardwareController(Process):
         self.pumpstate = state
 
     def updateScreen(self, message, pumpstate):
+        self.oled.fill(0)
+        self.oled.show()
+        self.image = Image.new('1', (self.oled.width, self.oled.height))
+        self.draw = ImageDraw.Draw(self.image)
         text = message
         textlinetwo = "Pump is " + pumpstate
         (font_width, font_height) = self.font.getsize(text)
@@ -80,7 +84,7 @@ class HardwareController(Process):
         self.oled.show()
 
     def SetAngle(self, angle):
-        duty = angle / 18 + 2
+        duty = int(angle) / 18 + 2
         GPIO.output(self.servo_control_pin, True)
         self.p.ChangeDutyCycle(duty)
         sleep(1)
