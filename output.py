@@ -21,9 +21,6 @@ class HardwareController(Process):
         GPIO.setup(self.servo_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_override_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        # self.p = GPIO.PWM(self.servo_control_pin, 50)
-        # self.p.start(0)
-
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self.oled = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
         self.oled.fill(0)
@@ -33,7 +30,6 @@ class HardwareController(Process):
         self.draw = ImageDraw.Draw(self.image)
         self.prev_reading = 0
         self.updatePump(self.pumpstate)
-        self.logging_queue.put("Output process started...")
     
     def run(self):
         self.p = GPIO.PWM(self.servo_control_pin, 50)
@@ -48,10 +44,8 @@ class HardwareController(Process):
             sleep(1)
             while not self.trigger_queue.empty():
                 latest = self.trigger_queue.get()
-                self.logging_queue.put("Got data packet in output queue")
                 if latest.reading is not None:
                     if latest.reading != self.prev_reading:
-                        self.logging_queue.put("Updating pump servo...")
                         self.updateServo(latest.reading)
                     self.prev_reading = latest.reading
                     self.updateScreen(latest.timestamp, self.pumpstate)
@@ -72,6 +66,7 @@ class HardwareController(Process):
             GPIO.output(self.pump_control_pin, GPIO.LOW)
         self.logging_queue.put("Pump State Changed to " + state)
         self.pumpstate = state
+        self.updateScreen("Overridden", state)
 
     def updateScreen(self, message, pumpstate):
         self.oled.fill(0)
@@ -91,9 +86,6 @@ class HardwareController(Process):
         self.logging_queue.put(str(duty))
         GPIO.output(self.servo_control_pin, True)
         self.p.ChangeDutyCycle(duty)
-        #sleep(1)
-        #GPIO.output(self.servo_control_pin, False)
-        #self.p.ChangeDutyCycle(0)
 
     def stop(self):
         """Stop method called from parent"""
