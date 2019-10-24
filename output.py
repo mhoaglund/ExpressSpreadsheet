@@ -82,7 +82,6 @@ class HardwareController(Process):
 
     def SetAngle(self, angle):
         duty = (angle / 18) + 2
-        self.logging_queue.put(str(duty))
         GPIO.output(self.servo_control_pin, True)
         self.p.ChangeDutyCycle(duty)
 

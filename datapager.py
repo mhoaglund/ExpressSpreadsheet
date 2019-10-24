@@ -33,3 +33,6 @@ class DataPager(object):
 
     def byindex(self, ind):
         return self.rows[ind]
+
+    def restart(self):
+        self.current = 0

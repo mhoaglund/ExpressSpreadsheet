@@ -39,6 +39,8 @@ DATA_SETTINGS = DataSettings(
 
 DATA_PAGER = DataPager(DATA_SETTINGS)
 
+PAUSED = False
+
 PARAMS = [0,0]
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
@@ -77,25 +79,33 @@ def bracket(val, lowest, highest):
     
 def sendLatestData():
     # TODO get next data frame from datapager
-    latest = QueuePayload(
-        translate(
-            float(DATA_PAGER.next()[1]), 
-            PARAMS[0], 
-            PARAMS[1], 
-            0, 
-            180
-            ), 
-        DATA_PAGER.next()[0],
-         None)
-    TRIGGERQUEUE.put(latest)
-    print(latest.reading)
+    if not PAUSED:
+        latest = QueuePayload(
+            translate(
+                float(DATA_PAGER.next()[1]), 
+                PARAMS[0], 
+                PARAMS[1], 
+                0, 
+                180
+                ), 
+            DATA_PAGER.next()[0],
+            None)
+        TRIGGERQUEUE.put(latest)
+        print(latest.reading)
     return True
 
 def awake():
+    global PAUSED
+    DATA_PAGER.restart()
+    PAUSED = False
     TRIGGERQUEUE.put(QueuePayload(None, None, "On"))
+    LOGGINGQUEUE.put("Starting program in the morning...")
 
 def asleep():
+    global PAUSED
+    PAUSED = True
     TRIGGERQUEUE.put(QueuePayload(None, None, "Off"))
+    LOGGINGQUEUE.put("Stopping program in the evening...")
 
 def stopworkerthreads():
     """Stop any currently running threads"""
@@ -109,7 +119,7 @@ schedule.every().day.at("09:00").do(awake)
 schedule.every().day.at("17:00").do(asleep) 
 
 if setup():
-    print("starting...")
+    logger.info("starting...")
 try:
     sendLatestData()
     while True:
@@ -117,7 +127,7 @@ try:
         while not LOGGINGQUEUE.empty():
             logmsg = LOGGINGQUEUE.get()
             if logmsg is not None:
-                print(logmsg)
+                logger.info(logmsg)
         x = 1
 except (KeyboardInterrupt, SystemExit):
     stopworkerthreads()
