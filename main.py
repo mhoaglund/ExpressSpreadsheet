@@ -34,7 +34,7 @@ OUTPUT_SETTINGS = OutputSettings(
 )
 
 DATA_SETTINGS = DataSettings(
-    "sampled.csv"
+    "/home/pi/ExpressSpreadsheet/sampled.csv"
 )
 
 DATA_PAGER = DataPager(DATA_SETTINGS)

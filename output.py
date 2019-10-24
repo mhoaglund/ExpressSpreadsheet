@@ -25,7 +25,7 @@ class HardwareController(Process):
         self.oled = adafruit_ssd1306.SSD1306_I2C(128, 32, self.i2c)
         self.oled.fill(0)
         self.oled.show()
-        self.font = ImageFont.truetype("PTM55FT.ttf", 12, encoding = "unic")
+        self.font = ImageFont.truetype("/home/pi/ExpressSpreadsheet/PTM55FT.ttf", 12, encoding = "unic")
         self.image = Image.new('1', (self.oled.width, self.oled.height))
         self.draw = ImageDraw.Draw(self.image)
         self.prev_reading = 0
