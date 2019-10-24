@@ -42,18 +42,21 @@ DATA_PAGER = DataPager(DATA_SETTINGS)
 PARAMS = [0,0]
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
-# Figure out how 'wide' each range is
+    if value < leftMin:
+        value = leftMin
+    if value > leftMax:
+        value = leftMax
     leftSpan = leftMax - leftMin
     rightSpan = rightMax - rightMin
-    # Convert the left range into a 0-1 range (float)
     valueScaled = float(value - leftMin) / float(leftSpan)
-    # Convert the 0-1 range into a value in the right range.
     return int(rightMin + (valueScaled * rightSpan))
 
 def setup():
     #We get the last row because the datapager flips the CSV over.
-    PARAMS[0] = float(DATA_PAGER.last()[0])
-    PARAMS[1] = float(DATA_PAGER.last()[1])
+    # PARAMS[0] = float(DATA_PAGER.last()[0])
+    # PARAMS[1] = float(DATA_PAGER.last()[1])
+    PARAMS[0] = 740
+    PARAMS[1] = 800
     spinupoutputprocess()
     return True
 
@@ -63,6 +66,14 @@ def spinupoutputprocess():
         _hwmgr = HardwareController(OUTPUT_SETTINGS)
         PROCESSES.append(_hwmgr)
         _hwmgr.start()
+
+def bracket(val, lowest, highest):
+    _val = val
+    if _val > highest:
+        _val = highest
+    if _val < lowest:
+        _val = lowest
+    return _val
     
 def sendLatestData():
     # TODO get next data frame from datapager
@@ -94,8 +105,8 @@ def stopworkerthreads():
         proc.join()
 
 schedule.every(12).seconds.do(sendLatestData)
-schedule.every().day.at("08:00").do(awake)
-schedule.every().day.at("16:00").do(asleep) 
+schedule.every().day.at("09:00").do(awake)
+schedule.every().day.at("17:00").do(asleep) 
 
 if setup():
     print("starting...")

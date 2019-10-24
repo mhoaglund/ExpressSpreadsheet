@@ -54,7 +54,6 @@ class HardwareController(Process):
                     self.pumpstate = latest.state
                     self.updateScreen("---", latest.state)
                     self.updatePump(latest.state)
-                    continue
 
     def updateServo(self, reading):
         self.SetAngle(reading)
