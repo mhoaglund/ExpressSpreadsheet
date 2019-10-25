@@ -17,7 +17,7 @@ class HardwareController(Process):
         self.servo_control_pin = 4
         self.pump_override_pin = 27
         self.pump_control_pin = 23
-        self.pumpstate = "On"
+        self.pumpstate = "Off"
         GPIO.setup(self.servo_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_control_pin, GPIO.OUT)
         GPIO.setup(self.pump_override_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
